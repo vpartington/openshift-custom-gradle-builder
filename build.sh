@@ -38,13 +38,21 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-./gradlew pushDockerImage -Doutput.registry=${OUTPUT_REGISTRY} -Doutput.image=${OUTPUT_IMAGE}
+export GRADLE_OPTS="-Dorg.gradle.daemon=false"
+# 21/12/17 - This should be pushDockerImage but that doesn't work.
+#            Unfortunately, the docker push command below doesn't work either
+./gradlew buildDockerImage -Doutput.registry=${OUTPUT_REGISTRY} -Doutput.image=${OUTPUT_IMAGE}
 if [ $? != 0 ]; then
   exit 1
 fi
 
 popd
 
-if [[ -d /var/run/secrets/openshift.io/push ]] && [[ ! -e /root/.dockercfg ]]; then
-  cp /var/run/secrets/openshift.io/push/.dockercfg /root/.dockercfg
+if [[ -d ${PUSH_DOCKERCFG_PATH} ]] && [[ ! -e /root/.dockercfg ]]; then
+  cp -p ${PUSH_DOCKERCFG_PATH}/.dockercfg /root/.dockercfg
+fi
+
+# 21/12/17 - This doesn't work. :-(
+if [ -n "${OUTPUT_IMAGE}" ] || [ -s "/root/.dockercfg" ]; then
+  docker push "${TAG}"
 fi

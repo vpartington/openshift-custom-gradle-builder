@@ -1,7 +1,6 @@
-# This image is intended for testing purposes, it has the same behavior as
-# the origin-docker-builder image, but does so as a custom image so it can
-# be used with Custom build strategies.  It expects a set of
-# environment variables to parameterize the build:
+# This image is based on openshift/origin-custom-docker-builder, but adds
+# support for Gradle builds. It expects a set of environment variables to
+# parameterize the build:
 #
 #   OUTPUT_REGISTRY - the Docker registry URL to push this image to
 #   OUTPUT_IMAGE - the name to tag the image with
@@ -12,8 +11,6 @@
 # If "/root/.dockercfg" is bind mounted in, it will use that as authorization
 # to a Docker registry.
 #
-# The standard name for this image is openshift/origin-custom-docker-builder
-#
 FROM openshift/origin-base
 
 RUN INSTALL_PKGS="gettext automake make docker java-1.8.0-openjdk-devel" && \
@@ -21,7 +18,7 @@ RUN INSTALL_PKGS="gettext automake make docker java-1.8.0-openjdk-devel" && \
     rpm -V $INSTALL_PKGS && \
     yum clean all
 
-LABEL io.k8s.display-name="OpenShift Origin Custom Gradle Builder"
+LABEL io.k8s.display-name="OpenShift Custom Gradle Builder"
 ENV HOME=/root
 COPY build.sh /tmp/build.sh
 CMD ["/tmp/build.sh"]
